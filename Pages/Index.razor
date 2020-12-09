@@ -1,0 +1,133 @@
+﻿@page "/"
+
+<h1>跑步配速Pace</h1>
+
+由步頻Cadence 和步幅Stride 來計算
+
+
+<hr />
+<div style="font-size:200%">
+    步頻:
+
+    <select id='cadence' @bind="CadenceSelected">
+        @for (int i = 160; i < 191; i++)
+        {
+            <option value="@i">@i</option>
+        }
+
+    </select>
+    <br />
+
+    步幅:
+
+    <select id='stride' @bind="StrideSelected">
+        @for (int i = 80; i < 161; i++)
+        {
+            <option value="@i">@i</option>
+        }
+
+    </select>
+    <hr>
+    配速: @pace
+
+
+</div>
+@code  {
+    //https://stackoverflow.com/questions/58125929/blazor-how-to-use-the-onchange-event-in-select-when-using-bind-also
+
+    //https://stackoverflow.com/questions/59444109/blazor-set-initial-value-to-a-select-using-onchange-and-not-bind
+
+    private string cadence { get; set; } = "170";
+    private string stride { get; set; } = "100";
+    private string pace { get; set; } = "552";
+
+    private string CadenceSelected
+    {
+        get
+        {
+            return cadence;
+        }
+        set
+        {
+            ChangeEventArgs selectedEventArgs = new ChangeEventArgs();
+            selectedEventArgs.Value = value;
+            OnChangeSelected(selectedEventArgs);
+
+            pace = GetPace();
+        }
+    }
+
+    private string GetPace()
+    {
+        var intCadence = Double.Parse(cadence);// 每分鐘多少步
+        var intStride = Double.Parse(stride);  // 每步幾公分
+
+        var x = intCadence * intStride; // 每分鐘幾公分
+
+        // 配速是一公里用了多少分鐘
+        // 一公里是 1000*100= 100000 公分
+        var y = 100000 / x;
+        var ysec =(int)( y * 60);
+        var sec = ysec % 60;
+        var min = (ysec - sec) / 60;
+
+        //var valPace = 100000 / intCadence / intStride;
+        //int intPart = (int)valPace;
+        //var decimalPart = (int)(60*(valPace-intPart));
+
+        if (sec <10)
+        {
+            return min + "0" + sec;
+        }
+
+        return min+""+sec;
+    }
+
+    private string xxxGetPace()
+    {
+        var intCadence = Double.Parse(cadence);// 每分鐘多少步
+        var intStride = Double.Parse(stride);  // 每步幾公分
+
+
+
+        var valPace = 100000 / intCadence / intStride;
+        int intPart = (int)valPace;
+        var decimalPart = (int)(60 * (valPace - intPart));
+
+
+        return intPart + "" + decimalPart;
+    }
+    private string StrideSelected
+    {
+        get
+        {
+            return stride;
+        }
+        set
+        {
+            ChangeEventArgs selectedEventArgs = new ChangeEventArgs();
+            selectedEventArgs.Value = value;
+            OnStrideChangeSelected(selectedEventArgs);
+
+            pace = GetPace();
+        }
+    }
+
+
+    private void OnChangeSelected(ChangeEventArgs e)
+    {
+        if (e.Value.ToString() != string.Empty)
+        {
+            cadence = e.Value.ToString();
+        }
+    }
+
+    private void OnStrideChangeSelected(ChangeEventArgs e)
+    {
+        if (e.Value.ToString() != string.Empty)
+        {
+            stride = e.Value.ToString();
+        }
+    }
+
+}
